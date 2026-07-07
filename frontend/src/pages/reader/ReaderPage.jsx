@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, BookOpen, Grid,
-  Maximize2, Minimize2, ArrowLeft, Share2,
-  Download, Sparkles
+  Maximize2, Minimize2, ArrowLeft, Share2
 } from "lucide-react";
 
 // ── Reading modes ──────────────────────────────────────────────────────────
