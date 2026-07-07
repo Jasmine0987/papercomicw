@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  BookOpen, Search, Plus, Trash2, ExternalLink,
+  Search, Plus, Trash2, ExternalLink,
   Calendar, Layers, Clock, Sparkles, BookMarked
 } from "lucide-react";
 import TopNav from "../../components/TopNav";
