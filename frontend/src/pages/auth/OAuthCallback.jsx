@@ -5,7 +5,6 @@ export default function OAuthCallback({ onNavigate }) {
     const processCallback = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
-      const state = params.get("state");
       
       if (!code) {
         alert("OAuth failed: no code received");
@@ -16,7 +15,7 @@ export default function OAuthCallback({ onNavigate }) {
       try {
         const res = await fetch("https://papercomic-api.onrender.com/api/auth/google/callback", {
           method: "GET",
-          credentials: "include",  // Include cookies for state validation
+          credentials: "include",
         });
         
         const data = await res.json();
