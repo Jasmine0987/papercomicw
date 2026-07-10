@@ -48,10 +48,10 @@ TOKEN_EXPIRE = 60        # 7 days in minutes
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB max PDF size
 GEMINI_API_KEY        = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GOOGLE_CLIENT_ID      = os.getenv("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET  = os.getenv("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_REDIRECT_URI   = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/auth/google/callback")
-FRONTEND_URL          = os.getenv("FRONTEND_URL", "http://localhost:3000")
+REACT_APP_GOOGLE_CLIENT_ID      = os.getenv("REACT_APP_GOOGLE_CLIENT_ID", "")
+REACT_APP_GOOGLE_CLIENT_SECRET  = os.getenv("REACT_APP_GOOGLE_CLIENT_SECRET", "")
+REACT_APP_GOOGLE_REDIRECT_URI   = os.getenv("REACT_APP_GOOGLE_REDIRECT_URI", "http://localhost:8000/api/auth/google/callback")
+FRONTEND_URL          = os.getenv("FRONTEND_URL", "https://papercomicw.vercel.app")
 RAZORPAY_KEY_ID        = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET    = os.getenv("RAZORPAY_KEY_SECRET", "")
 RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
@@ -75,12 +75,12 @@ ENV = os.getenv("ENV", "development")
 if ENV == "production":
     cors_origins = [FRONTEND_URL]
 else:
-    cors_origins = ["http://localhost:3000", FRONTEND_URL]
+    cors_origins = ["https://papercomicw.vercel.app", FRONTEND_URL]
 
 # Set allowed origins based on environment
 allowed_origins = [FRONTEND_URL]
 if ENV != "production":
-    allowed_origins.append("http://localhost:3000")
+    allowed_origins.append("https://papercomicw.vercel.app")
 
 app.add_middleware(
     CORSMiddleware,
@@ -91,7 +91,17 @@ app.add_middleware(
     expose_headers=["Content-Length"],
     max_age=600,
 )
-
+@app.get("/api/debug/cors")
+async def debug_cors():
+    """Debug endpoint to check CORS config"""
+    return {
+        "FRONTEND_URL": os.getenv("FRONTEND_URL"),
+        "ENV": os.getenv("ENV"),
+        "CORS_ALLOWED_ORIGINS": [
+            os.getenv("FRONTEND_URL", "http://localhost:3000"),
+            "http://localhost:3000"
+        ]
+    }
 # Security headers middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -258,7 +268,7 @@ async def login(body: LoginRequest, request: Request):
 @limiter.limit("10/minute")
 async def google_oauth_start(request: Request, response: Response):
     """Start OAuth flow with CSRF protection (state parameter)"""
-    if not GOOGLE_CLIENT_ID:
+    if not REACT_APP_GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="OAuth not configured")
     
     state = secrets.token_urlsafe(32)
@@ -293,7 +303,7 @@ async def google_oauth_callback(
     request: Request
 ):
     """Handle OAuth callback with state validation and ID token verification"""
-    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    if not REACT_APP_GOOGLE_CLIENT_ID or not REACT_APP_GOOGLE_CLIENT_SECRET:
         raise HTTPException(status_code=500, detail="OAuth not configured")
     
     # Validate state
@@ -310,9 +320,9 @@ async def google_oauth_callback(
                 "https://oauth2.googleapis.com/token",
                 data={
                     "code": code,
-                    "client_id": GOOGLE_CLIENT_ID,
-                    "client_secret": GOOGLE_CLIENT_SECRET,
-                    "redirect_uri": GOOGLE_REDIRECT_URI,
+                    "client_id": REACT_APP_GOOGLE_CLIENT_ID,
+                    "client_secret": REACT_APP_GOOGLE_CLIENT_SECRET,
+                    "redirect_uri": REACT_APP_GOOGLE_REDIRECT_URI,
                     "grant_type": "authorization_code",
                 },
                 timeout=10.0
@@ -336,7 +346,7 @@ async def google_oauth_callback(
                 idinfo = id_token.verify_oauth2_token(
                     id_token_str,
                     google_requests.Request(),
-                    GOOGLE_CLIENT_ID
+                    REACT_APP_GOOGLE_CLIENT_ID
                 )
             except ValueError as e:
                 logger.error(f"oauth_id_token_invalid: {str(e)}")
