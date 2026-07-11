@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, BookOpen, Grid,
-  Maximize2, Minimize2, ArrowLeft, Share2
+  Maximize2, Minimize2, ArrowLeft, Share2,
+  Download, Sparkles
 } from "lucide-react";
 
 // ── Reading modes ──────────────────────────────────────────────────────────
@@ -122,7 +123,7 @@ export default function ReaderPage({ comicId, user }) {
     const fetchComic = async () => {
       const token = localStorage.getItem("pc_token");
       try {
-        const res = await fetch(`/api/comics/${comicId}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/comics/${comicId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) throw new Error("Comic not found");
