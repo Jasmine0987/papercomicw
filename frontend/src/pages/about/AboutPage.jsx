@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { BookOpen, Mail, Sparkles, ArrowRight, Heart, Palette, Zap, Lock, Clock, Inbox } from "lucide-react";
 
-import TopNav from "../../components/TopNav";
-
-
 function GithubIcon({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -11,6 +8,9 @@ function GithubIcon({ size = 16 }) {
     </svg>
   );
 }
+import TopNav from "../../components/TopNav";
+
+
 function Star({ size = 24, color = "#FFB5E8", style }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}>
@@ -102,7 +102,7 @@ function ContactForm() {
     }
     setStatus("loading");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
